@@ -38,24 +38,30 @@ rst rst_u(
 bin_bcd bin_bcd1(
 	.clk(clk),
 	.rst_n(rst),
+
 	.bin_in (hour),
 	.din_vld(hour_vld),
+
 	.bcd_out(hour_bcd)
 );
 
 bin_bcd bin_bcd1(
 	.clk(clk),
 	.rst_n(rst),
+
 	.bin_in (minu),
 	.din_vld(minu_vld),
+
 	.bcd_out(minu_bcd)
 );
 
 bin_bcd bin_bcd1(
 	.clk(clk),
 	.rst_n(rst),
+
 	.bin_in (seco),
 	.din_vld(seco_vld),
+    
 	.bcd_out(seco_bcd)
 );
 
