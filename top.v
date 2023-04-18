@@ -45,7 +45,7 @@ bin_bcd bin_bcd1(
 	.bcd_out(hour_bcd)
 );
 
-bin_bcd bin_bcd1(
+bin_bcd bin_bcd2(
 	.clk(clk),
 	.rst_n(rst),
 
@@ -55,13 +55,13 @@ bin_bcd bin_bcd1(
 	.bcd_out(minu_bcd)
 );
 
-bin_bcd bin_bcd1(
+bin_bcd bin_bcd3(
 	.clk(clk),
 	.rst_n(rst),
 
 	.bin_in (seco),
 	.din_vld(seco_vld),
-    
+
 	.bcd_out(seco_bcd)
 );
 
