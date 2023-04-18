@@ -1,18 +1,14 @@
 `timescale 1ns / 1ns
-module clock_tb;
+module tube_tb;
     //global clock
     reg            clk         ;
     reg            rst_n       ;
 
     //user interface
-    reg [3:0]  key;
-    wire [5:0] hour;
-    wire [5:0] minu;
-    wire [5:0] seco;
-    wire hour_vld;
-    wire minu_vld;
-    wire seco_vld;
-    
+    reg [31:0] din;
+
+    wire [7:0] sel;
+    wire [7:0] seg;// seg[0]-a; seg[1]-b...
 
     //时钟周期，单位为ns，可在此修改时钟周期。
     parameter CYCLE    = 20;
@@ -21,20 +17,16 @@ module clock_tb;
     parameter RST_TIME = 3 ;
 
     //待测试的模块例化
-    clock clock_u(
+    tube tube_u(
     //global clock
     . clk(clk),
     . rst_n(rst_n),
 
     //user interface
-    . key(key),
+    . din(din),
 
-    . hour(hour),
-    . minu(minu),
-    . seco(seco),
-    . hour_vld(hour_vld),
-    . minu_vld(minu_vld),
-    . seco_vld(seco_vld)
+    . sel(sel),
+    . seg(seg)// seg[0]-a; seg[1]-b...
 );
 
 
@@ -51,20 +43,14 @@ module clock_tb;
         #(CYCLE*RST_TIME);
         rst_n = 1;
     end
-
+  disp_tem = {8'h12 , 8'ha , 8'h12 , 8'ha , 8'h12};
     //产生输入信号
     initial begin
         #2;
-        key = 4'b0000;
+        din = 32'h0000_0000;
         #(CYCLE*10);
-        key[2] = 1;
-        #(CYCLE*1);
-        key[2] = 0;
-        #(CYCLE*100)
-        key[3] = 1;
-        #(CYCLE*1);
-        key[3] = 0;
-        #(CYCLE*10000000);
+        din = 32'h12345678;
+        #(CYCLE*10000);
         
 
     end

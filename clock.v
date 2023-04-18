@@ -14,7 +14,10 @@ module clock (
 
     output [7:0] hour,
     output [7:0] minu,
-    output [7:0] seco
+    output [7:0] seco,
+    output  hour_vld,
+    output  minu_vld,
+    output  seco_vld
 );
 
 wire rst;
@@ -22,13 +25,13 @@ wire rst;
 reg [25:0]cnt0;
 wire add_cnt0;
 wire end_cnt0;
-reg [5:0]cnt1;
+reg [7:0]cnt1;
 wire add_cnt1;
 wire end_cnt1;
-reg [5:0]cnt2;
+reg [7:0]cnt2;
 wire add_cnt2;
 wire end_cnt2;
-reg [5:0]cnt3;
+reg [7:0]cnt3;
 wire add_cnt3;
 wire end_cnt3;
 
@@ -36,6 +39,12 @@ reg [1:0] state_c, state_n;
 wire set_to_tim_start ;
 wire tim_to_set_start ;
 
+reg  [7:0] hours [1:0];
+reg  [7:0] minus [1:0];
+reg  [7:0] secos [1:0];
+wire hchage;
+wire mchage;
+wire schage;
 
 localparam  set = 1;
 localparam  tim = 2;
@@ -49,9 +58,31 @@ rst rst_u(
     . rst(rst)
 );
 
-assign seco = {(cnt1/10)%10,cnt1%10};
-assign hour = 0;
-assign minu = 0;
+
+assign {hour,minu,seco} = {cnt3,cnt2,cnt1};
+assign {hour_vld,minu_vld,seco_vld} = {hchage,mchage,schage};
+
+
+assign hchage = hours[1] != hours[0];
+always  @(posedge clk)begin
+    hours[0] <= cnt3;
+    hours[1] <= hours[0];
+end
+
+
+assign mchage = minus[1] != minus[0];
+always  @(posedge clk)begin
+    minus[0] <= cnt2;
+    minus[1] <= minus[0];
+end
+
+assign schage = secos[1] != secos[0];
+always  @(posedge clk)begin
+    secos[0] <= cnt1;
+    secos[1] <= secos[0];
+end
+
+
 always @(posedge clk or negedge rst) begin
     if (!rst_n)
         state_c <= set ;
@@ -96,7 +127,7 @@ assign tim_to_set_start = state_c==tim && (key[3]);
     end
 
 assign add_cnt0 = state_c == tim;
-assign end_cnt0 = add_cnt0 && cnt0 == 50_0-1;//50_000_000-1
+assign end_cnt0 = add_cnt0 && cnt0 == 50-1;//50_000_000-1
 
 //¼ÆÊıÆ÷1 minu
     always @(posedge clk or negedge rst)begin

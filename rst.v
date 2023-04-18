@@ -1,5 +1,5 @@
 `timescale 1ns/1ns
-/*模块说明
+/*模块例化
 rst rst_u(
     //global clock
     . clk(clk),
