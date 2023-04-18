@@ -1,5 +1,5 @@
 `timescale 1ns / 1ns
-module tube_tb;
+module shuma_tb;
     //global clock
     reg            clk         ;
     reg            rst_n       ;
@@ -17,7 +17,7 @@ module tube_tb;
     parameter RST_TIME = 3 ;
 
     //´ý²âÊÔµÄÄ£¿éÀý»¯
-    tube tube_u(
+    shuma shuma_u(
     //global clock
     . clk(clk),
     . rst_n(rst_n),

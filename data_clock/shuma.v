@@ -2,7 +2,7 @@
 /*模块说明
 数码管驱动，共阳极，动态
 */
-module tube (
+module shuma (
     //global clock
     input clk,
     input rst_n,
