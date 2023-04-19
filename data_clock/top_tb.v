@@ -1,12 +1,13 @@
 `timescale 1ns / 1ns
-module hc595_tb;
+module top_tb;
     //global clock
     reg            clk         ;
     reg            rst_n       ;
 
     //user interface
-    reg [15:0] din;
+    reg [3:0] key;
     wire shcp;
+    wire stcp;
     wire ds;
     
 
@@ -17,15 +18,17 @@ module hc595_tb;
     parameter RST_TIME = 3 ;
 
     //待测试的模块例化
-    hc595 hc595_u(
+    top top_u(
     //global clock
     . clk(clk),
     . rst_n(rst_n),
 
     //user interface
-    . din(din),
+    . key(key),
     . shcp(shcp),
+    . stcp(stcp),
     . ds(ds)
+
 );
 
 
@@ -46,10 +49,16 @@ module hc595_tb;
     //产生输入信号
     initial begin
         #2;
-        din = 16'b1100_1111_1011_0011;
-        #(CYCLE*10000);
-        din = 16'd12;
-        
+        key = 4'b0000;
+        #(CYCLE*10);
+        key[1] = 1;
+        #(CYCLE*1);
+        key[1] = 0;
+        #(CYCLE*100)
+        key[3] = 1;
+        #(CYCLE*1);
+        key[3] = 0;
+        #(CYCLE*10000000);
 
     end
 endmodule

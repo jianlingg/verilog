@@ -45,15 +45,12 @@ bin_bcd u_binary_bcd(
 );
 
 initial begin
-	bin_in = 8'd55; //十进制165
+	bin_in = 8'd231; //十进制165
 	din_vld = 0;
 	#201;
 	din_vld = 1;
 	#(CYCLE*1);
 	din_vld =0;
 	#(CYCLE*100);
-	bin_in = 8'b1111_0000; //十进制240
-	#100;
-	bin_in = 8'b1111_1111;	//十进制255
 end
 endmodule

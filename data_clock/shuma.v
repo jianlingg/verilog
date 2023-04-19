@@ -8,11 +8,16 @@ module shuma (
     input rst_n,
 
     //user interface
-    input [31:0] din,
+    input  [31:0] din,
 
-    output reg [7:0] sel,
-    output reg [7:0] seg// seg[0]-a; seg[1]-b...
+    output [15:0] dout,
+    output        dout_vld
 );
+   
+   reg [7:0] sel;
+   reg [7:0] seg;// seg[0]-a; seg[1]-b...
+   assign  dout = {seg,sel};
+   
     parameter num_0 = 8'hc0,//0
 	           num_1 = 8'hf9,//1
 	           num_2 = 8'ha4,//2
@@ -31,6 +36,15 @@ wire end_cnt0;
 reg [3:0]cnt1;
 wire add_cnt1;
 wire end_cnt1;
+
+reg [31:0] dins [1:0];
+assign dout_vld = dins[1] != dins[0];
+always  @(posedge clk)begin
+   dins[0] <= din;
+   dins[1] <= dins[0];
+end
+
+
    
 reg [3:0] disp_tem;
 
@@ -39,8 +53,11 @@ always  @(posedge clk or negedge rst_n)begin
     if(!rst_n)begin
         sel <= 8'b0000_0001;
     end
-    else if(end_cnt0)begin
+    else if(end_cnt0 && !end_cnt1)begin
         sel <= {sel[6:0],sel[7]};
+    end
+    else if(end_cnt1)begin
+        sel <= 8'b0000_0001;
     end
 end
 
@@ -92,7 +109,7 @@ always @(posedge clk or negedge rst_n)begin
 end
 
 assign add_cnt0 = 1;
-assign end_cnt0 = add_cnt0 && cnt0 ==20-1;//20000-1
+assign end_cnt0 = add_cnt0 && cnt0 ==12500-1;//20000-1
 
 //¼ÆÊıÆ÷1
 always @(posedge clk or negedge rst_n)begin
@@ -109,5 +126,6 @@ end
 
 assign add_cnt1 = end_cnt0;
 assign end_cnt1 = add_cnt1 && cnt1 == 8-1;
+
     
 endmodule

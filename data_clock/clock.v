@@ -1,8 +1,8 @@
 `timescale 1ns/1ns
 /*模块说明
 这是一个时钟模块，输出时分秒，输入按键
-key4控制设置，和计时的状态切换
-在设置状态下：key1,2,3分别控制时分秒，按一下，加一下
+key3控制设置，和计时的状态切换
+在设置状态下：key0,1,2分别控制时分秒，按一下，加一下
 */
 module clock (
     //global clock
@@ -12,15 +12,22 @@ module clock (
     //user interface
     input  [3:0] key,
 
-    output [7:0] hour,
-    output [7:0] minu,
-    output [7:0] seco,
-    output  hour_vld,
-    output  minu_vld,
-    output  seco_vld
+    output [31:0] dout
 );
 
-wire rst;
+    wire [7:0] hour;
+    wire [7:0] minu;
+    wire [7:0] seco;
+    wire  hour_vld;
+    wire  minu_vld;
+    wire  seco_vld;
+    wire [7:0] hour_bcd;
+    wire [7:0] minu_bcd;
+    wire [7:0] seco_bcd;
+    
+
+    assign dout = {hour_bcd , 4'ha ,minu_bcd , 4'ha , seco_bcd};
+
 
 reg [25:0]cnt0;
 wire add_cnt0;
@@ -49,13 +56,37 @@ wire schage;
 localparam  set = 1;
 localparam  tim = 2;
 
-rst rst_u(
-    //global clock
-    . clk(clk),
-    . rst_n(rst_n),
 
-    //user interface
-    . rst(rst)
+
+
+bin_bcd bin_bcd1(
+	.clk(clk),
+	.rst_n(rst_n),
+
+	.bin_in (hour),
+	.din_vld(hour_vld),
+
+	.bcd_out(hour_bcd)
+);
+
+bin_bcd bin_bcd2(
+	.clk(clk),
+	.rst_n(rst_n),
+
+	.bin_in (minu),
+	.din_vld(minu_vld),
+
+	.bcd_out(minu_bcd)
+);
+
+bin_bcd bin_bcd3(
+	.clk(clk),
+	.rst_n(rst_n),
+
+	.bin_in (seco),
+	.din_vld(seco_vld),
+
+	.bcd_out(seco_bcd)
 );
 
 
@@ -83,7 +114,7 @@ always  @(posedge clk)begin
 end
 
 
-always @(posedge clk or negedge rst) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         state_c <= set ;
     else
@@ -114,7 +145,7 @@ assign tim_to_set_start = state_c==tim && (key[3]);
 
 
 //计数器0 seco
-    always @(posedge clk or negedge rst)begin
+    always @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin
             cnt0 <= 0;
           end
@@ -127,10 +158,10 @@ assign tim_to_set_start = state_c==tim && (key[3]);
     end
 
 assign add_cnt0 = state_c == tim;
-assign end_cnt0 = add_cnt0 && cnt0 == 50-1;//50_000_000-1
+assign end_cnt0 = add_cnt0 && cnt0 == 50_000_000-1;//50_000_000-1
 
 //计数器1 minu
-    always @(posedge clk or negedge rst)begin
+    always @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin
             cnt1 <= 0;
           end
@@ -146,7 +177,7 @@ assign add_cnt1 = end_cnt0 || key[2] == 1;
 assign end_cnt1 = add_cnt1 && cnt1 == 60-1;
 
 //计数器2 hour
-    always @(posedge clk or negedge rst)begin
+    always @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin
             cnt2 <= 0;
           end
@@ -162,7 +193,7 @@ assign add_cnt2 = end_cnt1 || key[1] == 1;
 assign end_cnt2 = add_cnt2 && cnt2 == 60-1;
 
 //计数器3 day
-    always @(posedge clk or negedge rst)begin
+    always @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin
             cnt3 <= 0;
           end

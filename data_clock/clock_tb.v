@@ -6,12 +6,7 @@ module clock_tb;
 
     //user interface
     reg [3:0]  key;
-    wire [5:0] hour;
-    wire [5:0] minu;
-    wire [5:0] seco;
-    wire hour_vld;
-    wire minu_vld;
-    wire seco_vld;
+    wire [31:0] dout;
     
 
     //时钟周期，单位为ns，可在此修改时钟周期。
@@ -29,12 +24,7 @@ module clock_tb;
     //user interface
     . key(key),
 
-    . hour(hour),
-    . minu(minu),
-    . seco(seco),
-    . hour_vld(hour_vld),
-    . minu_vld(minu_vld),
-    . seco_vld(seco_vld)
+    . dout(dout)
 );
 
 

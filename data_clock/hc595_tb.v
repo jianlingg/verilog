@@ -1,13 +1,16 @@
 `timescale 1ns / 1ns
-module shuma_tb;
+module hc595_tb;
     //global clock
     reg            clk         ;
     reg            rst_n       ;
 
     //user interface
-    reg [31:0] din;
-
-    wire [15:0] dout;
+    reg [15:0] din;
+    reg din_vld;
+    wire shcp;
+    wire stcp;
+    wire ds;
+    
 
     //时钟周期，单位为ns，可在此修改时钟周期。
     parameter CYCLE    = 20;
@@ -16,16 +19,17 @@ module shuma_tb;
     parameter RST_TIME = 3 ;
 
     //待测试的模块例化
-    shuma shuma_u(
+    hc595 hc595_u(
     //global clock
     . clk(clk),
     . rst_n(rst_n),
 
     //user interface
     . din(din),
-
-    . dout(dout),
-    . dout_vld(dout_vld)
+    . din_vld(din_vld),
+    . shcp(shcp),
+    . stcp(stcp),
+    . ds(ds)
 );
 
 
@@ -42,13 +46,18 @@ module shuma_tb;
         #(CYCLE*RST_TIME);
         rst_n = 1;
     end
- 
+
     //产生输入信号
     initial begin
         #2;
-        din = 32'h0000_0000;
-        #(CYCLE*10);
-        din = 32'h12345678;
+        din_vld = 0;
+        din = 16'b1100_1111_1011_0010;
+        #(CYCLE*100);
+        din_vld = 1;
+        #(CYCLE*1);
+        din_vld = 0;
+        #(CYCLE*1000);
+        din = 16'd44;
         #(CYCLE*10000);
         
 

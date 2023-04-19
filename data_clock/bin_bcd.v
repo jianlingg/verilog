@@ -1,3 +1,7 @@
+/*
+输入：同步的din_vld和bin_in
+输出：二进制bin的bcd格式bcd_out
+*/
 module bin_bcd(
 	input clk,
 	input rst_n,
@@ -7,25 +11,27 @@ module bin_bcd(
 	output	reg [7:0]	bcd_out
     );
 	
-reg [3:0] one;
-reg [3:0] ten;
-//reg [1:0] hun;
+reg [7:0] bcd;
 
-reg [7:0] bin_in_tem;
+reg [7:0] bin_in_tem1;
 reg [2:0]cnt;
 wire add_cnt;
 wire end_cnt;
 reg flag_add;
 
+
+
 //
-always  @(posedge clk or negedge rst_n)begin
+always  @(posedge clk)begin
 	if(!rst_n)begin
-		bin_in_tem <= 0;
+		bin_in_tem1 <= 0;
 	end
-	else if(din_vld)begin
-		bin_in_tem <= bin_in;
+	else if(din_vld )begin
+		bin_in_tem1 <= bin_in;
 	end
 end
+
+
 //计数器
 always @(posedge clk or negedge rst_n)begin
 	if(!rst_n)begin
@@ -55,30 +61,39 @@ always  @(posedge clk or negedge rst_n)begin
 	end
 end
 
-//
-always @(negedge clk)begin
-	if (one >= 4'd5 && add_cnt) 	one = one + 4'd3;
-	if (ten >= 4'd5 && add_cnt) 	ten = ten + 4'd3;
-end
-
-always @(posedge clk or negedge rst_n) begin
-	if(!rst_n)begin
-		one <= 0;
-		ten <= 0;
-	end
-	else if(flag_add)begin
-		ten	 <= {ten[2:0],one[3]};
-		one	 <= {one[2:0],bin_in_tem[7-cnt]};
-	end
-end
-
-//
 always  @(posedge clk or negedge rst_n)begin
 	if(!rst_n)begin
 		bcd_out <= 0;
 	end
-	if(end_cnt)begin
-		bcd_out <= {ten, one};
+	if(rst_n && end_cnt)begin
+		bcd_out <= bcd;
 	end
 end
+
+//
+always @(posedge clk)begin
+	if(bcd[3:0] >= 4'd5)begin
+		bcd[3:0] <= bcd[3:0]+3;
+	end
+end
+always @(posedge clk)begin
+	if(bcd[7:4] >= 4'd5)begin
+		bcd[7:4] <= bcd[7:4]+3;
+	end
+end
+
+always @(negedge clk or negedge rst_n) begin
+	if(!rst_n)begin
+		bcd <= 0;
+	end
+	else if(add_cnt )begin
+		bcd	 <= {bcd[6:0],bin_in_tem1[7-cnt]};
+	end
+	else begin
+		bcd <= 0;
+	end
+end
+	
+	
+
 endmodule
