@@ -13,21 +13,24 @@ module bin_bcd(
 	
 reg [7:0] bcd;
 
-reg [7:0] bin_in_tem1;
+reg [7:0] bin_in_tem;
 reg [2:0]cnt;
 wire add_cnt;
 wire end_cnt;
 reg flag_add;
 
-
+reg dout_vld;
+always  @(posedge clk)begin
+	dout_vld <= end_cnt;
+end
 
 //
 always  @(posedge clk)begin
 	if(!rst_n)begin
-		bin_in_tem1 <= 0;
+		bin_in_tem <= 0;
 	end
 	else if(din_vld )begin
-		bin_in_tem1 <= bin_in;
+		bin_in_tem <= bin_in;
 	end
 end
 
@@ -65,35 +68,51 @@ always  @(posedge clk or negedge rst_n)begin
 	if(!rst_n)begin
 		bcd_out <= 0;
 	end
-	if(rst_n && end_cnt)begin
+	if(rst_n && dout_vld)begin
 		bcd_out <= bcd;
 	end
 end
 
-//
-always @(posedge clk)begin
-	if(bcd[3:0] >= 4'd5)begin
-		bcd[3:0] <= bcd[3:0]+3;
+wire h4 = add_cnt ? bcd[3:0] >= 4'd5 : 0;
+wire l4 = add_cnt ? bcd[7:4] >= 4'd5 : 0;
+
+reg [7:0] bcdsh,bcdsl;
+always @(*)begin
+	if(h4)begin
+		bcdsh[3:0] = bcd[3:0]+3;
+		bcdsh[7:4] = bcd[7:4];
+	end
+	else begin
+		bcdsh = 0;
 	end
 end
-always @(posedge clk)begin
-	if(bcd[7:4] >= 4'd5)begin
-		bcd[7:4] <= bcd[7:4]+3;
+always @(*)begin
+	if(l4)begin
+		bcdsl[3:0] = bcd[3:0];
+		bcdsl[7:4] = bcd[7:4]+3;
+	end
+	else begin
+		bcdsl = 0;
 	end
 end
 
-always @(negedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
 	if(!rst_n)begin
 		bcd <= 0;
 	end
-	else if(add_cnt )begin
-		bcd	 <= {bcd[6:0],bin_in_tem1[7-cnt]};
+	else if(h4)begin
+		bcd	 <= {bcdsh[6:0],bin_in_tem[7-cnt]};
+	end
+	else if(l4)begin
+		bcd	 <= {bcdsl[6:0],bin_in_tem[7-cnt]};
+	end
+	else if(add_cnt && !h4 && !l4)begin
+		bcd	 <= {bcd[6:0],bin_in_tem[7-cnt]};
 	end
 	else begin
 		bcd <= 0;
 	end
 end
-	
 	
 
 endmodule

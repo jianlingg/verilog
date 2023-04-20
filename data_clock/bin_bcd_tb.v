@@ -36,7 +36,7 @@ wire  	[9:0] bcd_out;
     end
  
 
-bin_bcd u_binary_bcd(
+bin_bcd u_bin_bcd(
 	.clk(clk),
 	.rst_n(rst_ns),
 	.bin_in (bin_in),
@@ -45,7 +45,7 @@ bin_bcd u_binary_bcd(
 );
 
 initial begin
-	bin_in = 8'd231; //十进制165
+	bin_in = 8'b1111_1111; //十进制165
 	din_vld = 0;
 	#201;
 	din_vld = 1;

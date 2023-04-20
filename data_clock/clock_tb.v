@@ -48,13 +48,13 @@ module clock_tb;
         key = 4'b0000;
         #(CYCLE*10);
         key[2] = 1;
-        #(CYCLE*1);
+        #(CYCLE*100);
         key[2] = 0;
         #(CYCLE*100)
         key[3] = 1;
-        #(CYCLE*1);
+        #(CYCLE*100);
         key[3] = 0;
-        #(CYCLE*10000000);
+        #(CYCLE*100000);
         
 
     end

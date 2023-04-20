@@ -51,7 +51,7 @@ end
           end      
     end
   
-    assign add_cnt_div = 1;
+    assign add_cnt_div = flag_add;
     assign end_cnt_div = add_cnt_div && cnt_div == {div{1'b1}};
 
     assign shcp = cnt_div[div-1];
@@ -74,6 +74,9 @@ end
     always @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin
             cnt <= 0;
+        end
+        else if(din_vld)begin
+            cnt <= 1;
         end
         else if(add_cnt)begin
           if(end_cnt)
@@ -101,7 +104,10 @@ end
         if(!rst_n)begin
             ds <= 0;
         end
-        else if(end_cnt_div)begin
+        else if(din_vld)begin
+            ds <= din[15-cnt];
+        end
+        else if(clk_neg)begin
             ds <= din_tmp[15-cnt];
         end
     end

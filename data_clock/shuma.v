@@ -18,17 +18,17 @@ module shuma (
    reg [7:0] seg;// seg[0]-a; seg[1]-b...
    assign  dout = {seg,sel};
    
-    parameter num_0 = 8'hc0,//0
-	           num_1 = 8'hf9,//1
-	           num_2 = 8'ha4,//2
-	           num_3 = 8'hb0,//3
-	           num_4 = 8'h99,//4
-	           num_5 = 8'h92,//5
-	           num_6 = 8'h82,//6
-	           num_7 = 8'hf8,//7
-	           num_8 = 8'h80,//8
-	           num_9 = 8'h90,//9
-	           dian  = 8'hfe;//.
+    parameter num_0 = 8'b1100_0000,//0
+	           num_1 = 8'b1111_1001,//1
+	           num_2 = 8'b1010_0100,//2
+	           num_3 = 8'b1011_0000,//3
+	           num_4 = 8'b1001_1001,//4
+	           num_5 = 8'b1001_0010,//5
+	           num_6 = 8'b1000_0010,//6
+	           num_7 = 8'b1111_1000,//7
+	           num_8 = 8'b1000_0000,//8
+	           num_9 = 8'b1001_0000,//9
+	           dian  = 8'b1011_1111;//-
 
 reg [15:0]cnt0;
 wire add_cnt0;
@@ -37,11 +37,11 @@ reg [3:0]cnt1;
 wire add_cnt1;
 wire end_cnt1;
 
-reg [31:0] dins [1:0];
-assign dout_vld = dins[1] != dins[0];
+reg [15:0] douts [1:0];
+assign dout_vld = douts[1] != douts[0];
 always  @(posedge clk)begin
-   dins[0] <= din;
-   dins[1] <= dins[0];
+   douts[0] <= dout;
+   douts[1] <= douts[0];
 end
 
 
@@ -109,7 +109,7 @@ always @(posedge clk or negedge rst_n)begin
 end
 
 assign add_cnt0 = 1;
-assign end_cnt0 = add_cnt0 && cnt0 ==12500-1;//20000-1
+assign end_cnt0 = add_cnt0 && cnt0 ==1250-1;//20000-1
 
 //¼ÆÊıÆ÷1
 always @(posedge clk or negedge rst_n)begin

@@ -2,7 +2,7 @@
 /*模块说明
 这是一个时钟模块，输出时分秒，输入按键
 key3控制设置，和计时的状态切换
-在设置状态下：key0,1,2分别控制时分秒，按一下，加一下
+在设置状态下：key2,1,0分别控制时分秒，按一下，加一下
 */
 module clock (
     //global clock
@@ -57,37 +57,52 @@ localparam  set = 1;
 localparam  tim = 2;
 
 
+wire [3:0] key_vld;
+//---------------------------------------------------------------------
+ genvar i;
+     generate
+         for(i=0; i<4; i=i+1) begin:BLOCK1
+            key key_u(
+                //global clock
+                . clk(clk),
+                . rst_n(rst_n),
 
-
-bin_bcd bin_bcd1(
-	.clk(clk),
-	.rst_n(rst_n),
-
-	.bin_in (hour),
-	.din_vld(hour_vld),
-
-	.bcd_out(hour_bcd)
-);
-
-bin_bcd bin_bcd2(
-	.clk(clk),
-	.rst_n(rst_n),
-
-	.bin_in (minu),
-	.din_vld(minu_vld),
-
-	.bcd_out(minu_bcd)
-);
-
-bin_bcd bin_bcd3(
-	.clk(clk),
-	.rst_n(rst_n),
-
-	.bin_in (seco),
-	.din_vld(seco_vld),
-
-	.bcd_out(seco_bcd)
-);
+                //use interface
+                . key(key[i]),
+                . key_vld(key_vld[i])
+            );      
+        end
+     endgenerate
+//---------------------------------------------------------------------
+    bin_bcd bin_bcd_h(
+    	.clk(clk),
+    	.rst_n(rst_n),
+    
+    	.bin_in (hour),
+    	.din_vld(hour_vld),
+    
+    	.bcd_out(hour_bcd)
+    );
+    
+    bin_bcd bin_bcd_m(
+    	.clk(clk),
+    	.rst_n(rst_n),
+    
+    	.bin_in (minu),
+    	.din_vld(minu_vld),
+    
+    	.bcd_out(minu_bcd)
+    );
+    
+    bin_bcd bin_bcd_s(
+    	.clk(clk),
+    	.rst_n(rst_n),
+    
+    	.bin_in (seco),
+    	.din_vld(seco_vld),
+    
+    	.bcd_out(seco_bcd)
+    );
 
 
 assign {hour,minu,seco} = {cnt3,cnt2,cnt1};
@@ -139,8 +154,8 @@ always @(*) begin
     endcase
 end
 
-assign set_to_tim_start = state_c==set && (key[3]);
-assign tim_to_set_start = state_c==tim && (key[3]);
+assign set_to_tim_start = state_c==set && (key_vld[3]);
+assign tim_to_set_start = state_c==tim && (key_vld[3]);
 
 
 
@@ -158,7 +173,7 @@ assign tim_to_set_start = state_c==tim && (key[3]);
     end
 
 assign add_cnt0 = state_c == tim;
-assign end_cnt0 = add_cnt0 && cnt0 == 50_000_000-1;//50_000_000-1
+assign end_cnt0 = add_cnt0 && cnt0 == 50_000-1;//50_000_000-1
 
 //计数器1 minu
     always @(posedge clk or negedge rst_n)begin
@@ -173,7 +188,7 @@ assign end_cnt0 = add_cnt0 && cnt0 == 50_000_000-1;//50_000_000-1
         end
     end
 
-assign add_cnt1 = end_cnt0 || key[2] == 1;
+assign add_cnt1 = end_cnt0 || key_vld[0] == 1;
 assign end_cnt1 = add_cnt1 && cnt1 == 60-1;
 
 //计数器2 hour
@@ -189,7 +204,7 @@ assign end_cnt1 = add_cnt1 && cnt1 == 60-1;
         end
     end
 
-assign add_cnt2 = end_cnt1 || key[1] == 1;
+assign add_cnt2 = end_cnt1 || key_vld[1] == 1;
 assign end_cnt2 = add_cnt2 && cnt2 == 60-1;
 
 //计数器3 day
@@ -205,7 +220,7 @@ assign end_cnt2 = add_cnt2 && cnt2 == 60-1;
         end
     end
 
-assign add_cnt3 = end_cnt2 || key[0] == 1;
+assign add_cnt3 = end_cnt2 || key_vld[2] == 1;
 assign end_cnt3 = add_cnt3 && cnt3 == 24-1;
     
 endmodule
